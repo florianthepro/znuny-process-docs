@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 3,
+  "configuration": {
+    "fields": [
+      {
+        "id": "field-type",
+        "key": "Type",
+        "label": "Type",
+        "type": "select",
+        "values": [
+          "Change",
+          "Compliance",
+          "Incident",
+          "Incident:Major",
+          "Investigation",
+          "Operation&Maintenance",
+          "Problem",
+          "RfC",
+          "RMA",
+          "ServiceRequest",
+          "SPAM",
+          "Unclassified"
+        ],
+        "defaultValue": "",
+        "required": true
+      },
+      {
+        "id": "field-queue",
+        "key": "Queue",
+        "label": "Queue",
+        "type": "select",
+        "values": [
+          "Consulting",
+          "RMA",
+          "SPAM",
+          "Support"
+        ],
+        "defaultValue": "",
+        "required": true
+      },
+      {
+        "id": "field-service",
+        "key": "Service",
+        "label": "Service",
+        "type": "select",
+        "values": [
+          "Basic Support",
+          "Extra Support",
+          "Internal",
+          "Managed Service"
+        ],
+        "defaultValue": "",
+        "required": true
+      },
+      {
+        "id": "field-owner",
+        "key": "Owner",
+        "label": "Owner",
+        "type": "text",
+        "values": [],
+        "defaultValue": "",
+        "required": true
+      },
+      {
+        "id": "field-state",
+        "key": "State",
+        "label": "State",
+        "type": "select",
+        "values": [],
+        "defaultValue": "",
+        "required": false
+      },
+      {
+        "id": "field-priority",
+        "key": "Priority",
+        "label": "Priority",
+        "type": "select",
+        "values": [],
+        "defaultValue": "",
+        "required": false
+      },
+      {
+        "id": "field-responsible",
+        "key": "Responsible",
+        "label": "Responsible",
+        "type": "text",
+        "values": [],
+        "defaultValue": "",
+        "required": false
+      },
+      {
+        "id": "field-customer-id",
+        "key": "CustomerID",
+        "label": "CustomerID",
+        "type": "text",
+        "values": [],
+        "defaultValue": "",
+        "required": false
+      }
+    ],
+    "linkTypes": [
+      "Normal",
+      "ParentChild"
+    ]
+  },
+  "processes": []
+}
