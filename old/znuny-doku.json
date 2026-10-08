@@ -1,0 +1,612 @@
+{
+    "schemaVersion": 3,
+    "configuration": {
+        "fields": [
+            {
+                "id": "field-type",
+                "key": "Type",
+                "label": "Type",
+                "type": "select",
+                "values": [
+                    "Change",
+                    "Compliance",
+                    "Incident",
+                    "Incident:Major",
+                    "Invastigation",
+                    "Operation&Maintenance",
+                    "Problem",
+                    "RfC",
+                    "RMA",
+                    "ServiceRequest",
+                    "SPAM",
+                    "Unclassified"
+                ],
+                "defaultValue": "",
+                "required": true
+            },
+            {
+                "id": "field-queue",
+                "key": "Queue",
+                "label": "To queue",
+                "type": "select",
+                "values": [
+                    "Consulting",
+                    "RMA",
+                    "SPAM",
+                    "Support"
+                ],
+                "defaultValue": "",
+                "required": true
+            },
+            {
+                "id": "field-service",
+                "key": "Service",
+                "label": "Service",
+                "type": "select",
+                "values": [
+                    "Basic Support",
+                    "Extra Support",
+                    "Internal",
+                    "Managed Service"
+                ],
+                "defaultValue": "",
+                "required": true
+            }
+        ],
+        "linkTypes": [
+            "Normal",
+            "ParentChild"
+        ]
+    },
+    "processes": [
+        {
+            "id": "mask-8554edbaec4ae22e",
+            "name": "GfD Onbourding",
+            "description": "",
+            "yamlName": "gfd-onbourding-$$Vorname$$_$$Nachname$$",
+            "published": true,
+            "customerMarks": [],
+            "variables": [
+                {
+                    "id": "variable-691a4192-7d60-422c-a647-5893b0a9703f",
+                    "name": "Mitarbeitertyp",
+                    "type": "select",
+                    "values": [
+                        "Intern",
+                        "Extern",
+                        "Werkstudent"
+                    ],
+                    "prefill": "Intern",
+                    "minimum": null,
+                    "maximum": null,
+                    "hidden": false,
+                    "marked": false
+                },
+                {
+                    "id": "variable-c4301ca1-2003-40cf-a75c-009dc735a1f8",
+                    "name": "Vorname",
+                    "type": "text",
+                    "values": [],
+                    "prefill": "Vorname",
+                    "minimum": null,
+                    "maximum": null,
+                    "hidden": false,
+                    "marked": false
+                },
+                {
+                    "id": "variable-60ed9ab1-0d7f-49ce-a9d1-89764155f02a",
+                    "name": "Nachname",
+                    "type": "text",
+                    "values": [],
+                    "prefill": "Nachname",
+                    "minimum": null,
+                    "maximum": null,
+                    "hidden": false,
+                    "marked": false
+                },
+                {
+                    "id": "variable-14dd7de6-5c3c-4ab9-84cb-cf5f38db8bf0",
+                    "name": "Lizens",
+                    "type": "select",
+                    "values": [
+                        "F3",
+                        "E3"
+                    ],
+                    "prefill": "F3",
+                    "minimum": null,
+                    "maximum": null,
+                    "hidden": false,
+                    "marked": false
+                },
+                {
+                    "id": "variable-015c36e7-1cc3-4992-a5ed-eda623a1052a",
+                    "name": "verbleiben",
+                    "type": "select",
+                    "values": [
+                        "<2 verbleiben",
+                        ">/=2 verbleieben -> nachbestellen"
+                    ],
+                    "prefill": ">/=2 verbleieben -> nachbestellen",
+                    "minimum": null,
+                    "maximum": null,
+                    "hidden": false,
+                    "marked": false
+                },
+                {
+                    "id": "variable-1b5bb209-5d95-4e7e-bf5a-78d16592ca1c",
+                    "name": "DL-all-gesund.de",
+                    "type": "select",
+                    "values": [
+                        "zugewießen",
+                        "nein, da ausgenommen von verteiler"
+                    ],
+                    "prefill": "nein, da ausgenommen von verteiler",
+                    "minimum": null,
+                    "maximum": null,
+                    "hidden": false,
+                    "marked": false
+                },
+                {
+                    "id": "variable-c57564b7-57ef-48aa-b9a8-7362b0be794e",
+                    "name": "privat-email",
+                    "type": "select",
+                    "values": [
+                        "privat-mail@$$Vorname$$.$$Nachname$$.tld"
+                    ],
+                    "prefill": "privat-mail@$$Vorname$$.$$Nachname$$.tld",
+                    "minimum": null,
+                    "maximum": null,
+                    "hidden": false,
+                    "marked": false
+                },
+                {
+                    "id": "variable-69bb58b0-d13b-4dad-9eb3-258b486b9e07",
+                    "name": "Random",
+                    "type": "random",
+                    "values": [],
+                    "prefill": "",
+                    "minimum": null,
+                    "maximum": null,
+                    "hidden": false,
+                    "marked": false
+                },
+                {
+                    "id": "variable-dedb955d-5929-43ea-9704-656d965c1c5a",
+                    "name": "anrede",
+                    "type": "select",
+                    "values": [
+                        "geehrte Frau",
+                        "geehrter Herr"
+                    ],
+                    "prefill": "geehrte Frau",
+                    "minimum": null,
+                    "maximum": null,
+                    "hidden": false,
+                    "marked": false
+                },
+                {
+                    "id": "variable-d7f74e57-873c-4362-b7d8-7a2b1f7907ac",
+                    "name": "URL",
+                    "type": "select",
+                    "values": [
+                        "https://login.microsoftonline.com/"
+                    ],
+                    "prefill": "https://login.microsoftonline.com/",
+                    "minimum": null,
+                    "maximum": null,
+                    "hidden": false,
+                    "marked": false
+                }
+            ],
+            "steps": [
+                {
+                    "id": "step-d1a6371245c8214a",
+                    "action": "ticket-create",
+                    "subject": "$§onbourding$§",
+                    "body": "$§https://euler.tcsoc.net/operation/clients/gesund.de/02_On-Offboarding/GfD_OnBoardingIT_Muster-2026.docx|GfD_OnBoardingIT_Muster-2026.docx$§",
+                    "fields": [
+                        {
+                            "id": "step-field-6499ea20-6f02-486f-92e7-ea7ee3cc9f5a",
+                            "key": "Type",
+                            "value": "ServiceRequest",
+                            "enabled": true
+                        },
+                        {
+                            "id": "step-field-50e213bc-4589-4d7b-8107-2b2a163cbae9",
+                            "key": "Queue",
+                            "value": "Support",
+                            "enabled": true
+                        },
+                        {
+                            "id": "step-field-2304c47d-fde2-4bba-85e7-32f285a81a10",
+                            "key": "Service",
+                            "value": "Basic Support",
+                            "enabled": true
+                        }
+                    ],
+                    "links": [],
+                    "meta": {
+                        "system": "",
+                        "url": "",
+                        "address": "",
+                        "tasks": [],
+                        "condition": {
+                            "variable": "",
+                            "operator": "always",
+                            "value": ""
+                        }
+                    }
+                },
+                {
+                    "id": "step-e1bd26bf-8bd6-4def-9bd4-0a5066751dda",
+                    "action": "title-edit",
+                    "subject": "[GfD][KAT.1] Onbourding $$Vorname$$ $$Nachname$$",
+                    "body": "",
+                    "fields": [],
+                    "links": [],
+                    "meta": {
+                        "system": "",
+                        "url": "",
+                        "address": "",
+                        "tasks": [],
+                        "condition": {
+                            "variable": "",
+                            "operator": "always",
+                            "value": ""
+                        }
+                    }
+                },
+                {
+                    "id": "step-307be24c-cfdd-4370-bdbd-a4a8928a1e39",
+                    "action": "ticket-edit",
+                    "subject": "",
+                    "body": "",
+                    "fields": [
+                        {
+                            "id": "step-field-a5019eb5-e249-4ae2-aa23-e58f11934bcd",
+                            "key": "Type",
+                            "value": "Change",
+                            "enabled": true
+                        }
+                    ],
+                    "links": [],
+                    "meta": {
+                        "system": "",
+                        "url": "",
+                        "address": "",
+                        "tasks": [],
+                        "condition": {
+                            "variable": "",
+                            "operator": "always",
+                            "value": ""
+                        }
+                    }
+                },
+                {
+                    "id": "step-2770be9d-7822-43c8-9c16-e5e001b808cf",
+                    "action": "external-task",
+                    "subject": "Benutzer Anlegen",
+                    "body": "Benutzer Erstellt+Gruppen Zugewießen",
+                    "fields": [],
+                    "links": [],
+                    "meta": {
+                        "system": "Entra GfD",
+                        "url": "https://entra.microsoft.com",
+                        "address": "",
+                        "tasks": [
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Benutzer",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "+ Neuer Benutzer V",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Neuen Benutzer erstellen",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Feld ausfüllen",
+                                "instruction": "Benutzerprinzipalname",
+                                "target": "$$Vorname$$.$$Nachname$$"
+                            },
+                            {
+                                "kind": "Feld ausfüllen",
+                                "instruction": "@",
+                                "target": "gesund.de"
+                            },
+                            {
+                                "kind": "Feld ausfüllen",
+                                "instruction": "Anzeigename",
+                                "target": "$$Vorname$$ $$Nachname$$"
+                            },
+                            {
+                                "kind": "Feld ausfüllen",
+                                "instruction": "Kennwort",
+                                "target": "$$Random$$"
+                            },
+                            {
+                                "kind": "Notieren",
+                                "instruction": "Kennwort",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Weiter",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Weiter",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "+ Gruppe hinzufügen",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Auswählen",
+                                "instruction": "Gruppen",
+                                "target": "Alle Benutzer"
+                            },
+                            {
+                                "kind": "Auswählen",
+                                "instruction": "Gruppen",
+                                "target": "gfd_All"
+                            },
+                            {
+                                "kind": "Auswählen",
+                                "instruction": "Gruppen",
+                                "target": "m365_backup"
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Auswählen",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Weiter",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Erstellen",
+                                "target": ""
+                            }
+                        ],
+                        "condition": {
+                            "variable": "Mitarbeitertyp",
+                            "operator": "contains",
+                            "value": "tern"
+                        }
+                    }
+                },
+                {
+                    "id": "step-b0154b7c-a621-423e-ab21-7909eb472310",
+                    "action": "external-task",
+                    "subject": "Internen Benutzer Lizens Zuweisen",
+                    "body": "Lizens zugewießen",
+                    "fields": [],
+                    "links": [],
+                    "meta": {
+                        "system": "Microsoft Admin Center",
+                        "url": "https://admin.cloud.microsoft",
+                        "address": "",
+                        "tasks": [
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Benutzer",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Aktive Benutzer",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Feld ausfüllen",
+                                "instruction": "Durchsuchen",
+                                "target": "$$Vorname$$.$$Nachname$$"
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Enter/Suchen",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Benutzer",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Lizenzen und Apps",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Auswählen",
+                                "instruction": "Lizenzen",
+                                "target": "Enterprise Mobility + Security E3"
+                            },
+                            {
+                                "kind": "Notieren",
+                                "instruction": "Verbleibende Lizenzen",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Auswählen",
+                                "instruction": "Lizenzen",
+                                "target": "Office 365 E5"
+                            },
+                            {
+                                "kind": "Notieren",
+                                "instruction": "Verbleibende Lizenzen",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Änderungen Speichern",
+                                "target": ""
+                            }
+                        ],
+                        "condition": {
+                            "variable": "Mitarbeitertyp",
+                            "operator": "equals",
+                            "value": "Intern"
+                        }
+                    }
+                },
+                {
+                    "id": "step-74ea6400-cab1-4259-8ec0-5a9f4fe6e24c",
+                    "action": "external-task",
+                    "subject": "Internen Benutzer Lizens Zuweisen",
+                    "body": "",
+                    "fields": [],
+                    "links": [],
+                    "meta": {
+                        "system": "Microsoft Admin Center",
+                        "url": "https://admin.cloud.microsoft",
+                        "address": "",
+                        "tasks": [
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Benutzer",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Aktive Benutzer",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Feld ausfüllen",
+                                "instruction": "Durchsuchen",
+                                "target": "$$Vorname$$ $$Nachname$$"
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Enter/Suchen",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Benutzer",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Lizenzen und Apps",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Auswählen",
+                                "instruction": "Lizenzen",
+                                "target": "(F3) Office Web-Apps"
+                            },
+                            {
+                                "kind": "Notieren",
+                                "instruction": "Verbleibende Lizenzen",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Änderungen Speichern",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Öffnen",
+                                "instruction": "https://entra.microsoft.com",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Gruppen",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Feld ausfüllen",
+                                "instruction": "Suche",
+                                "target": "DL all"
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "DL All gesund.de",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Mitglieder",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "+ Mitglieder hinzufügen",
+                                "target": ""
+                            },
+                            {
+                                "kind": "Feld ausfüllen",
+                                "instruction": "Suchen",
+                                "target": "$$Vorname$$ $$Nachname$$"
+                            },
+                            {
+                                "kind": "Klicken",
+                                "instruction": "Auswählen",
+                                "target": ""
+                            }
+                        ],
+                        "condition": {
+                            "variable": "Mitarbeitertyp",
+                            "operator": "equals",
+                            "value": "Extern"
+                        }
+                    }
+                },
+                {
+                    "id": "step-8106d6e7-1a26-4347-bd8d-a4219a4c5329",
+                    "action": "note",
+                    "subject": "Benutzer angelegt",
+                    "body": "Done:\n- Benutzer $$Vorname$$.$$Nachname$$@gesund.de erstellt\n- Gruppen Alle Benutzer; gfd_All; m365_backup Zugewießen\n- Lizens zugewießen: Enterprise Mobility + Security E3 und Office 365 E5- Zuweisung DL all@gesund.deAustehend:\n- iniziale Kundenmail",
+                    "fields": [],
+                    "links": [],
+                    "meta": {
+                        "system": "",
+                        "url": "",
+                        "address": "",
+                        "tasks": [],
+                        "condition": {
+                            "variable": "Mitarbeitertyp",
+                            "operator": "equals",
+                            "value": "Intern"
+                        }
+                    }
+                },
+                {
+                    "id": "step-ba481cc0-b337-4277-bdd9-4ec1cc07c800",
+                    "action": "email-out",
+                    "subject": "Ihre Zugangsdaten",
+                    "body": "Sehr $$anrede$$ $$Nachname$$,\n\nIhr Gesunddekonto wurde erstellt. Anbei erhalten Sie Ihren Zugang.\n\nUsername/E-Mail: $$Vorname$$.$$Nachname$$@gesund.de\nPassword: $$Random$$ -> echtes password nutzen\nURL: $$URL$$\n\nMit freundlichen Grüßen\n...",
+                    "fields": [],
+                    "links": [],
+                    "meta": {
+                        "system": "",
+                        "url": "",
+                        "address": "$$privat-email$$",
+                        "tasks": [],
+                        "condition": {
+                            "variable": "",
+                            "operator": "always",
+                            "value": ""
+                        }
+                    }
+                }
+            ],
+            "updatedAt": "2026-10-08T08:36:02+00:00"
+        }
+    ]
+}
