@@ -7,9 +7,41 @@ const MAX_STEPS = 150;
 const MAX_FIELDS = 250;
 const MAX_VARIABLES = 150;
 
+// ============================================================================
+// SECURITY & SESSIONS
+// ============================================================================
+
+$isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+session_set_cookie_params([
+    'httponly' => true,
+    'secure' => $isHttps,
+    'samesite' => 'Strict',
+    'path' => '/'
+]);
+session_start();
+
+if (!isset($_SESSION['csrf'])) {
+    $_SESSION['csrf'] = bin2hex(random_bytes(32));
+}
+
+header('Content-Type: text/html; charset=UTF-8');
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; base-uri 'self'; form-action 'self'");
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: no-referrer');
+header('X-Frame-Options: SAMEORIGIN');
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+function h(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
 function cleanString(mixed $value, int $max = 10000): string
 {
-    $text = trim(is_scalar($value) ? (string) $value : '');
+    $text = trim(is_scalar($value) ? (string)$value : '');
     if (function_exists('mb_substr')) {
         return mb_substr($text, 0, $max, 'UTF-8');
     }
@@ -19,27 +51,6 @@ function cleanString(mixed $value, int $max = 10000): string
 function uid(string $prefix): string
 {
     return $prefix . '-' . bin2hex(random_bytes(8));
-}
-
-function defaultConfig(): array
-{
-    return [
-        'schemaVersion' => 3,
-        'configuration' => [
-            'fields' => [
-                ['id' => 'field-type', 'key' => 'Type', 'label' => 'Type', 'type' => 'select', 'values' => ['Change', 'Compliance', 'Incident', 'Incident:Major', 'Investigation', 'Operation&Maintenance', 'Problem', 'RfC', 'RMA', 'ServiceRequest', 'SPAM', 'Unclassified'], 'defaultValue' => '', 'required' => true],
-                ['id' => 'field-queue', 'key' => 'Queue', 'label' => 'Queue', 'type' => 'select', 'values' => ['Consulting', 'RMA', 'SPAM', 'Support'], 'defaultValue' => '', 'required' => true],
-                ['id' => 'field-service', 'key' => 'Service', 'label' => 'Service', 'type' => 'select', 'values' => ['Basic Support', 'Extra Support', 'Internal', 'Managed Service'], 'defaultValue' => '', 'required' => true],
-                ['id' => 'field-owner', 'key' => 'Owner', 'label' => 'Owner', 'type' => 'text', 'values' => [], 'defaultValue' => '', 'required' => true],
-                ['id' => 'field-state', 'key' => 'State', 'label' => 'State', 'type' => 'select', 'values' => [], 'defaultValue' => '', 'required' => false],
-                ['id' => 'field-priority', 'key' => 'Priority', 'label' => 'Priority', 'type' => 'select', 'values' => [], 'defaultValue' => '', 'required' => false],
-                ['id' => 'field-responsible', 'key' => 'Responsible', 'label' => 'Responsible', 'type' => 'text', 'values' => [], 'defaultValue' => '', 'required' => false],
-                ['id' => 'field-customer-id', 'key' => 'CustomerID', 'label' => 'CustomerID', 'type' => 'text', 'values' => [], 'defaultValue' => '', 'required' => false],
-            ],
-            'linkTypes' => ['Normal', 'ParentChild'],
-        ],
-        'processes' => [],
-    ];
 }
 
 function normalizeValues(mixed $value): array
@@ -62,6 +73,54 @@ function normalizeValues(mixed $value): array
     return $out;
 }
 
+// ============================================================================
+// DEFAULT CONFIG
+// ============================================================================
+
+function defaultConfig(): array
+{
+    return [
+        'schemaVersion' => 3,
+        'configuration' => [
+            'fields' => [
+                [
+                    'id' => 'field-type',
+                    'key' => 'Type',
+                    'label' => 'Type',
+                    'type' => 'select',
+                    'values' => ['Change', 'Compliance', 'Incident', 'Incident:Major', 'Investigation', 'Operation&Maintenance', 'Problem', 'RfC', 'RMA', 'ServiceRequest', 'SPAM', 'Unclassified'],
+                    'defaultValue' => '',
+                    'required' => true
+                ],
+                [
+                    'id' => 'field-queue',
+                    'key' => 'Queue',
+                    'label' => 'Queue',
+                    'type' => 'select',
+                    'values' => ['Consulting', 'RMA', 'SPAM', 'Support'],
+                    'defaultValue' => '',
+                    'required' => true
+                ],
+                [
+                    'id' => 'field-service',
+                    'key' => 'Service',
+                    'label' => 'Service',
+                    'type' => 'select',
+                    'values' => ['Basic Support', 'Extra Support', 'Internal', 'Managed Service'],
+                    'defaultValue' => '',
+                    'required' => true
+                ],
+            ],
+            'linkTypes' => ['Normal', 'ParentChild'],
+        ],
+        'processes' => [],
+    ];
+}
+
+// ============================================================================
+// NORMALIZATION FUNCTIONS
+// ============================================================================
+
 function normalizeField(array $field): array
 {
     $type = cleanString($field['type'] ?? 'text', 30);
@@ -76,7 +135,7 @@ function normalizeField(array $field): array
         'type' => $type,
         'values' => normalizeValues($field['values'] ?? $field['options'] ?? []),
         'defaultValue' => cleanString($field['defaultValue'] ?? $field['default'] ?? '', 5000),
-        'required' => (bool) ($field['required'] ?? false),
+        'required' => (bool)($field['required'] ?? false),
     ];
 }
 
@@ -93,10 +152,10 @@ function normalizeVariable(array $variable): array
         'type' => $type,
         'values' => normalizeValues($variable['values'] ?? []),
         'prefill' => cleanString($variable['prefill'] ?? $variable['default'] ?? '', 5000),
-        'minimum' => isset($variable['minimum']) && $variable['minimum'] !== '' ? (float) $variable['minimum'] : null,
-        'maximum' => isset($variable['maximum']) && $variable['maximum'] !== '' ? (float) $variable['maximum'] : null,
-        'hidden' => (bool) ($variable['hidden'] ?? false),
-        'marked' => (bool) ($variable['marked'] ?? false),
+        'minimum' => isset($variable['minimum']) && $variable['minimum'] !== '' ? (float)$variable['minimum'] : null,
+        'maximum' => isset($variable['maximum']) && $variable['maximum'] !== '' ? (float)$variable['maximum'] : null,
+        'hidden' => (bool)($variable['hidden'] ?? false),
+        'marked' => (bool)($variable['marked'] ?? false),
     ];
 }
 
@@ -115,12 +174,13 @@ function normalizeStep(array $step): array
             'id' => cleanString($rawField['id'] ?? '', 100) ?: uid('step-field'),
             'key' => $key,
             'value' => cleanString($rawField['value'] ?? '', 5000),
-            'enabled' => (bool) ($rawField['enabled'] ?? true),
+            'enabled' => (bool)($rawField['enabled'] ?? true),
         ];
     }
 
     $meta = is_array($step['meta'] ?? null) ? $step['meta'] : [];
     $condition = is_array($meta['condition'] ?? null) ? $meta['condition'] : [];
+
     return [
         'id' => cleanString($step['id'] ?? '', 100) ?: uid('step'),
         'action' => cleanString($step['action'] ?? 'note', 50),
@@ -186,13 +246,17 @@ function normalizeProcess(array $process): array
         'name' => cleanString($process['name'] ?? 'Unbenannter Prozess', 160),
         'description' => cleanString($process['description'] ?? '', 1000),
         'yamlName' => cleanString($process['yamlName'] ?? '', 200),
-        'published' => (bool) ($process['published'] ?? true),
+        'published' => (bool)($process['published'] ?? true),
         'customerMarks' => is_array($process['customerMarks'] ?? null) ? array_values($process['customerMarks']) : [],
         'variables' => $variables,
         'steps' => $steps,
         'updatedAt' => cleanString($process['updatedAt'] ?? '', 50) ?: date(DATE_ATOM),
     ];
 }
+
+// ============================================================================
+// FILE I/O
+// ============================================================================
 
 function loadConfig(): array
 {
@@ -252,10 +316,9 @@ function saveConfig(array $data): void
     }
 }
 
-function h(string $value): string
-{
-    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-}
+// ============================================================================
+// ACTION LABELS
+// ============================================================================
 
 function actionTitle(string $action): string
 {
@@ -276,10 +339,9 @@ function actionTitle(string $action): string
     return $labels[$action] ?? 'Schritt';
 }
 
-session_start();
-if (!isset($_SESSION['csrf'])) {
-    $_SESSION['csrf'] = bin2hex(random_bytes(32));
-}
+// ============================================================================
+// LOAD DATA
+// ============================================================================
 
 $config = defaultConfig();
 $error = '';
@@ -288,6 +350,10 @@ try {
 } catch (Throwable $e) {
     $error = $e->getMessage();
 }
+
+// ============================================================================
+// API ENDPOINTS
+// ============================================================================
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json; charset=UTF-8');
@@ -298,7 +364,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new RuntimeException('Ungültige Anfrage.');
         }
 
-        if (!hash_equals($_SESSION['csrf'], (string) ($payload['csrf'] ?? ''))) {
+        if (!hash_equals($_SESSION['csrf'], (string)($payload['csrf'] ?? ''))) {
             throw new RuntimeException('Sitzung abgelaufen.');
         }
 
@@ -361,7 +427,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($op === 'delete-process') {
             $id = cleanString($payload['id'] ?? '', 100);
-            $config['processes'] = array_values(array_filter($config['processes'], fn ($process) => ($process['id'] ?? '') !== $id));
+            $config['processes'] = array_values(array_filter($config['processes'], fn($process) => ($process['id'] ?? '') !== $id));
             saveConfig($config);
             echo json_encode(['ok' => true]);
             exit;
@@ -374,6 +440,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+
+// ============================================================================
+// PAGE ROUTING
+// ============================================================================
 
 $page = cleanString($_GET['page'] ?? 'library', 20);
 $id = cleanString($_GET['id'] ?? '', 100);
@@ -638,41 +708,27 @@ foreach ($config['processes'] as $process) {
                     <a class="active" href="?page=editor">Editor</a>
                     <a href="?page=config">Konfiguration</a>
                 </div>
-                <?php $process = $current ?? ['id' => '', 'name' => '', 'description' => '', 'yamlName' => '', 'published' => true, 'variables' => [], 'steps' => [[
-                    'id' => uid('step'),
-                    'action' => 'ticket-create',
-                    'subject' => '',
-                    'body' => '',
-                    'fields' => [
-                        ['id' => uid('step-field'), 'key' => 'Type', 'value' => '', 'enabled' => true],
-                        ['id' => uid('step-field'), 'key' => 'Queue', 'value' => '', 'enabled' => true],
-                        ['id' => uid('step-field'), 'key' => 'Service', 'value' => '', 'enabled' => true],
-                    ],
-                    'links' => [],
-                    'meta' => ['system' => '', 'url' => '', 'address' => '', 'tasks' => [], 'condition' => ['variable' => '', 'operator' => 'always', 'value' => '']]
-                ]];
-                ?>
                 <div class="editor-head">
                     <div class="field-grid">
                         <div>
                             <label>Prozessname</label>
-                            <input id="process-name" value="<?= h($process['name']) ?>">
+                            <input id="process-name" value="<?= h($current['name'] ?? '') ?>">
                         </div>
                         <div>
                             <label>YAML-Dateiname</label>
-                            <input id="yaml-name" value="<?= h($process['yamlName']) ?>">
+                            <input id="yaml-name" value="<?= h($current['yamlName'] ?? '') ?>">
                         </div>
                     </div>
                     <div class="meta-grid" style="margin-top:12px;">
                         <div>
                             <label>Kurzbeschreibung</label>
-                            <input id="process-description" value="<?= h($process['description']) ?>">
+                            <input id="process-description" value="<?= h($current['description'] ?? '') ?>">
                         </div>
                         <div>
                             <label>Veröffentlicht</label>
                             <select id="process-published">
-                                <option value="1" <?= $process['published'] ? 'selected' : '' ?>>Ja</option>
-                                <option value="0" <?= !$process['published'] ? 'selected' : '' ?>>Nein</option>
+                                <option value="1" <?= ($current['published'] ?? true) ? 'selected' : '' ?>>Ja</option>
+                                <option value="0" <?= !($current['published'] ?? true) ? 'selected' : '' ?>>Nein</option>
                             </select>
                         </div>
                     </div>
